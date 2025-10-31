@@ -1,0 +1,43 @@
+services:
+  back:
+    build: 
+      context: ./
+      dockerfile: ./dockerfiles/dev.back.dockerfile
+    env_file:
+      - ./env/back.env
+    volumes:
+      - /app/node_modules
+      - ./back:/app
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    
+  front:
+    build: 
+      context: ./
+      dockerfile: ./dockerfiles/dev.front.dockerfile
+    ports:
+      - 5173:5173
+    volumes:
+      - /app/node_modules
+      - ./front:/app
+    env_file:
+      - ./env/front.env
+    depends_on:
+      - back
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo
+    volumes:
+      - mongodb:/data/db
+      - mongodb_config:/data/configdb
+    env_file:
+      - ./env/mongodb.env
+    ports:
+        - 27017:27017
+    command: mongod
+
+volumes:
+  mongodb:
+  mongodb_config:
